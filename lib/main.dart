@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:insta_clone/pages/home_page.dart';
+import 'package:insta_clone/pages/my_feed_page.dart';
 import 'package:insta_clone/pages/signin_page.dart';
 import 'package:insta_clone/pages/signup_page.dart';
 import 'package:insta_clone/pages/splash_page.dart';
@@ -24,7 +25,8 @@ class MyApp extends StatelessWidget {
         HomePage.id: (context) => HomePage(),
         SplashPage.id: (context) => SplashPage(),
         SignInPage.id: (context) => SignInPage(),
-        SignUpPage.id: (context) => SignUpPage()
+        SignUpPage.id: (context) => SignUpPage(),
+        MyFeedPage.id: (context) => MyFeedPage()
     },
     );
   }
