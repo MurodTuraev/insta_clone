@@ -2,9 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:insta_clone/models/post.dart';
+import 'package:insta_clone/services/rtdb_service.dart';
+import 'package:insta_clone/services/store_service.dart';
 
 class MyUploadPage extends StatefulWidget {
-  const MyUploadPage({Key? key}) : super(key: key);
+  final PageController? pageController;
+  const MyUploadPage({Key? key, this.pageController}) : super(key: key);
   static final String id = "my_upload_page";
 
   @override
@@ -15,7 +19,7 @@ class _MyUploadPageState extends State<MyUploadPage> {
 
   var isLoading = false;
   var captionController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
+  final _picker = ImagePicker();
   File? _image;
   var _bottomSheet = false;
 
@@ -29,15 +33,47 @@ class _MyUploadPageState extends State<MyUploadPage> {
     });
   }
 
-  _imgFromGallery() async{
-    XFile? image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+  _uploadNewPost(){
+    String caption = captionController.text.toString().trim();
+
+    if(caption.isEmpty)return;
+    if(_image == null) return;
+    _apiUploadImage(caption);
+    _moveToFeed();
+  }
+
+
+  _moveToFeed(){
+    setState(() {
+      isLoading = false;
+    });
+    captionController.text = "";
+    _image = null;
+    widget.pageController!.animateToPage(0,
+        duration: Duration(microseconds: 200),
+        curve: Curves.easeIn);
+  }
+
+  _apiUploadImage(String caption){
+    StoreService.uploadImage(_image!).then((img_post) => {
+      _apiCreatePost(img_post, caption)
+    });
+  }
+
+  _apiCreatePost(String img_post, String caption){
+    var post = Post(img_post, caption);
+    RtdbService.addPost(post).then((value) => {});
+  }
+
+  Future _imgFromGallery() async{
+    final image = await _picker.getImage(source: ImageSource.gallery, imageQuality: 50);
     setState(() {
       _image = File(image!.path);
     });
   }
 
-  _imgFromCamera() async{
-    XFile? image = await _picker.pickImage(source: ImageSource.camera, imageQuality: 50);
+  Future _imgFromCamera() async{
+    final image = await _picker.getImage(source: ImageSource.camera);
     setState(() {
       _image = File(image!.path);
     });
@@ -55,7 +91,9 @@ class _MyUploadPageState extends State<MyUploadPage> {
         ),),
         actions: [
           IconButton(
-            onPressed: (){},
+            onPressed: (){
+              _uploadNewPost();
+            },
             icon: Icon(Icons.drive_folder_upload),
             color: Color.fromRGBO(247, 119, 55, 1),
           )

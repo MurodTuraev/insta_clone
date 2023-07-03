@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "305939683657",
+    "firebase_url": "https://instagram-c945d-default-rtdb.firebaseio.com",
+    "project_id": "instagram-c945d",
+    "storage_bucket": "instagram-c945d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:305939683657:android:16993fe4ba7a66a4dfa298",
+        "android_client_info": {
+          "package_name": "com.example.insta_clone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "305939683657-q797fvuvbu2g0knctns1ror8deevd1lu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWVtqGYpAcg3MWXxtMAMrQSeIS1sWgl7w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "305939683657-q797fvuvbu2g0knctns1ror8deevd1lu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "305939683657-rpfili5m2bnh0h2sdolr4msf6jpbgj60.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.instaClone"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

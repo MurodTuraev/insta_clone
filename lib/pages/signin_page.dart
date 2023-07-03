@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_clone/pages/home_page.dart';
 import 'package:insta_clone/pages/signup_page.dart';
+import 'package:insta_clone/services/auth_service.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);
@@ -21,6 +23,12 @@ class _SignInPageState extends State<SignInPage> {
 
     if(email.isEmpty || pasword.isEmpty) return;
 
+    AuthService.signUser(email, pasword).then((value) => {
+      responseSignIn(value!)
+    });
+  }
+
+  void responseSignIn(User firebaseUser){
     Navigator.pushReplacementNamed(context, HomePage.id);
   }
 

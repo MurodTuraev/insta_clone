@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_clone/pages/home_page.dart';
 import 'package:insta_clone/pages/signin_page.dart';
+import 'package:insta_clone/services/auth_service.dart';
 import 'package:insta_clone/services/utils_service.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -31,6 +33,12 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
+    AuthService.signUpUser(fullname, email, password).then((value) => {
+      responseUserUp(value!)
+    });
+  }
+
+  void responseUserUp(User firebaseUser){
     Navigator.pushReplacementNamed(context, HomePage.id);
   }
 
