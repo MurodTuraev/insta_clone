@@ -1,9 +1,11 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_clone/models/member_model.dart';
 import 'package:insta_clone/pages/home_page.dart';
 import 'package:insta_clone/pages/signin_page.dart';
 import 'package:insta_clone/services/auth_service.dart';
+import 'package:insta_clone/services/db_service.dart';
 import 'package:insta_clone/services/utils_service.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -35,7 +37,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return passwordRegExp.hasMatch(password);
   }
 
-  _doSignUp(){
+  _doSignUp() async {
     String fullname = fullnameController.text.trim();
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
@@ -50,12 +52,14 @@ class _SignUpPageState extends State<SignUpPage> {
 
     if(_isValidateEmail(email) && _validatePassword(password)) return;
 
-    AuthService.signUpUser(fullname, email, password).then((value) => {
-      responseUserUp(value!)
+    var res = await AuthService.signUpUser(fullname, email, password);
+    Member member = Member(fullname, email);
+    DBService.storeMember(member).then((value) => {
+      storeMemberToDB(member)
     });
   }
 
-  void responseUserUp(User firebaseUser){
+  void storeMemberToDB(Member member){
     setState(() {
       isLoading = false;
     });
