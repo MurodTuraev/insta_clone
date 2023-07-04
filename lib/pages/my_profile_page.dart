@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:insta_clone/services/auth_service.dart';
 
 import '../models/post.dart';
 
@@ -109,7 +110,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: (){},
+            onPressed: (){
+              AuthService.signOutUser(context);
+            },
             icon: Icon(Icons.exit_to_app),
             color: Color.fromRGBO(247, 119, 55, 1),
           ),

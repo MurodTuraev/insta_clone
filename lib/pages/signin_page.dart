@@ -23,12 +23,19 @@ class _SignInPageState extends State<SignInPage> {
 
     if(email.isEmpty || pasword.isEmpty) return;
 
+    setState(() {
+      isLoading = true;
+    });
+
     AuthService.signUser(email, pasword).then((value) => {
       responseSignIn(value!)
     });
   }
 
   void responseSignIn(User firebaseUser){
+    setState(() {
+      isLoading = false;
+    });
     Navigator.pushReplacementNamed(context, HomePage.id);
   }
 
@@ -51,116 +58,123 @@ class _SignInPageState extends State<SignInPage> {
                 ]
             )
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+        child: Stack(
           children: [
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Instagram',style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Billabong',
-                      fontSize: 45,
-                    ),),
-                    SizedBox(height: 20,),
-                    // Email
-                    Container(
-                      height: 50,
-                      padding: EdgeInsets.only(left: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(7))
-                      ),
-                      child: TextField(
-                        controller: emailController,
-                        style: TextStyle(
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Instagram',style: TextStyle(
                           color: Colors.white,
-                          fontSize: 18
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Email",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 18
+                          fontFamily: 'Billabong',
+                          fontSize: 45,
+                        ),),
+                        SizedBox(height: 20,),
+                        // Email
+                        Container(
+                          height: 50,
+                          padding: EdgeInsets.only(left: 15),
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(7))
                           ),
-                          border: InputBorder.none
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10,),
-
-                    // Password
-                    Container(
-                      height: 50,
-                      padding: EdgeInsets.only(left: 15),
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(7))
-                      ),
-                      child: TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18
-                        ),
-                        decoration: InputDecoration(
-                            hintText: "Password",
-                            hintStyle: TextStyle(
-                                color: Colors.grey.shade400,
+                          child: TextField(
+                            controller: emailController,
+                            style: TextStyle(
+                                color: Colors.white,
                                 fontSize: 18
                             ),
-                            border: InputBorder.none
+                            decoration: InputDecoration(
+                                hintText: "Email",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 18
+                                ),
+                                border: InputBorder.none
+                            ),
+                          ),
                         ),
-                      ),
+
+                        SizedBox(height: 10,),
+
+                        // Password
+                        Container(
+                          height: 50,
+                          padding: EdgeInsets.only(left: 15),
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(7))
+                          ),
+                          child: TextField(
+                            controller: passwordController,
+                            obscureText: true,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18
+                            ),
+                            decoration: InputDecoration(
+                                hintText: "Password",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 18
+                                ),
+                                border: InputBorder.none
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 10,),
+
+                        // Sign in button
+                        Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.all(Radius.circular(7)),
+                              border: Border.all(width: 2,color: Colors.white.withOpacity(0.2))
+                          ),
+                          child: TextButton(
+                            onPressed: (){
+                              _doSignIn();
+                            },
+                            child: Text("Sign In", style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20
+                            ),),
+
+                          ),
+                        )
+                      ],
                     ),
-
-                    SizedBox(height: 10,),
-
-                    // Sign in button
-                    Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.all(Radius.circular(7)),
-                        border: Border.all(width: 2,color: Colors.white.withOpacity(0.2))
-                      ),
-                      child: TextButton(
-                        onPressed: (){
-                          _doSignIn();
-                        },
-                        child: Text("Sign In", style: TextStyle(
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Don`t have an account?', style: TextStyle(color: Colors.white, fontSize: 16),),
+                    TextButton(
+                      onPressed: (){
+                        _callSignUpPage();
+                      },
+                      child: Text('Sign Up', style: TextStyle(
                           color: Colors.white,
-                          fontSize: 20
-                        ),),
-
-                      ),
+                          fontSize: 16
+                      ),),
                     )
                   ],
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Don`t have an account?', style: TextStyle(color: Colors.white, fontSize: 16),),
-                TextButton(
-                  onPressed: (){
-                    _callSignUpPage();
-                  },
-                  child: Text('Sign Up', style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16
-                  ),),
                 )
               ],
-            )
+            ),
+            isLoading? Center(
+              child: CircularProgressIndicator(),
+            ): SizedBox.shrink(),
           ],
-        ),
+        )
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_clone/pages/home_page.dart';
@@ -20,6 +21,20 @@ class _SignUpPageState extends State<SignUpPage> {
   var passwordController = TextEditingController();
   var confpassController = TextEditingController();
 
+  bool _isValidateEmail(String email){
+    print(EmailValidator.validate(email));
+    return EmailValidator.validate(email);
+  }
+
+  bool _validatePassword(String password) {
+    print("validate Password");
+    // Create a regular expression that matches the required format of the password.
+    RegExp passwordRegExp = RegExp(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#\$%^&+=])");
+    // Check if the input string matches the regular expression.
+    print(passwordRegExp.hasMatch(password));
+    return passwordRegExp.hasMatch(password);
+  }
+
   _doSignUp(){
     String fullname = fullnameController.text.trim();
     String email = emailController.text.trim();
@@ -33,12 +48,17 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
+    if(_isValidateEmail(email) && _validatePassword(password)) return;
+
     AuthService.signUpUser(fullname, email, password).then((value) => {
       responseUserUp(value!)
     });
   }
 
   void responseUserUp(User firebaseUser){
+    setState(() {
+      isLoading = false;
+    });
     Navigator.pushReplacementNamed(context, HomePage.id);
   }
 
@@ -61,170 +81,177 @@ class _SignUpPageState extends State<SignUpPage> {
                 ]
             )
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+        child: Stack(
           children: [
-            Expanded(
-              child: Center(
-                child: Column(
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Instagram',style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Billabong',
+                          fontSize: 45,
+                        ),),
+                        SizedBox(height: 20,),
+                        // #Fullname
+                        Container(
+                          height: 50,
+                          padding: EdgeInsets.only(left: 15),
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(7))
+                          ),
+                          child: TextField(
+                            controller: fullnameController,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18
+                            ),
+                            decoration: InputDecoration(
+                                hintText: "Fullname",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 18
+                                ),
+                                border: InputBorder.none
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 10,),
+
+                        // #Email
+                        Container(
+                          height: 50,
+                          padding: EdgeInsets.only(left: 15),
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(7))
+                          ),
+                          child: TextField(
+                            controller: emailController,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18
+                            ),
+                            decoration: InputDecoration(
+                                hintText: "Email",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 18
+                                ),
+                                border: InputBorder.none
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 10,),
+                        // #Password
+                        Container(
+                          height: 50,
+                          padding: EdgeInsets.only(left: 15),
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(7))
+                          ),
+                          child: TextField(
+                            controller: passwordController,
+                            obscureText: true,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18
+                            ),
+                            decoration: InputDecoration(
+                                hintText: "Password",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 18
+                                ),
+                                border: InputBorder.none
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 10,),
+
+                        // #Confirm Password
+                        Container(
+                          height: 50,
+                          padding: EdgeInsets.only(left: 15),
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(7))
+                          ),
+                          child: TextField(
+                            controller: confpassController,
+                            obscureText: true,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18
+                            ),
+                            decoration: InputDecoration(
+                                hintText: "Confirm password",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 18
+                                ),
+                                border: InputBorder.none
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 10,),
+
+                        // Sign in button
+                        Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.all(Radius.circular(7)),
+                              border: Border.all(width: 2,color: Colors.white.withOpacity(0.2))
+                          ),
+                          child: TextButton(
+                            onPressed: (){
+                              _doSignUp();
+                            },
+                            child: Text("Sign Up", style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20
+                            ),),
+
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Instagram',style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Billabong',
-                      fontSize: 45,
-                    ),),
-                    SizedBox(height: 20,),
-                    // #Fullname
-                    Container(
-                      height: 50,
-                      padding: EdgeInsets.only(left: 15),
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(7))
-                      ),
-                      child: TextField(
-                        controller: fullnameController,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18
-                        ),
-                        decoration: InputDecoration(
-                            hintText: "Fullname",
-                            hintStyle: TextStyle(
-                                color: Colors.grey.shade400,
-                                fontSize: 18
-                            ),
-                            border: InputBorder.none
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10,),
-
-                    // #Email
-                    Container(
-                      height: 50,
-                      padding: EdgeInsets.only(left: 15),
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(7))
-                      ),
-                      child: TextField(
-                        controller: emailController,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18
-                        ),
-                        decoration: InputDecoration(
-                            hintText: "Email",
-                            hintStyle: TextStyle(
-                                color: Colors.grey.shade400,
-                                fontSize: 18
-                            ),
-                            border: InputBorder.none
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10,),
-                    // #Password
-                    Container(
-                      height: 50,
-                      padding: EdgeInsets.only(left: 15),
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(7))
-                      ),
-                      child: TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18
-                        ),
-                        decoration: InputDecoration(
-                            hintText: "Password",
-                            hintStyle: TextStyle(
-                                color: Colors.grey.shade400,
-                                fontSize: 18
-                            ),
-                            border: InputBorder.none
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10,),
-
-                    // #Confirm Password
-                    Container(
-                      height: 50,
-                      padding: EdgeInsets.only(left: 15),
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(7))
-                      ),
-                      child: TextField(
-                        controller: confpassController,
-                        obscureText: true,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18
-                        ),
-                        decoration: InputDecoration(
-                            hintText: "Confirm password",
-                            hintStyle: TextStyle(
-                                color: Colors.grey.shade400,
-                                fontSize: 18
-                            ),
-                            border: InputBorder.none
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10,),
-
-                    // Sign in button
-                    Container(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.all(Radius.circular(7)),
-                          border: Border.all(width: 2,color: Colors.white.withOpacity(0.2))
-                      ),
-                      child: TextButton(
-                        onPressed: (){
-                          _doSignUp();
-                        },
-                        child: Text("Sign Up", style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20
-                        ),),
-
-                      ),
+                    Text('Already have an account?', style: TextStyle(color: Colors.white, fontSize: 16),),
+                    TextButton(
+                      onPressed: (){
+                        _callSignInPage();
+                      },
+                      child: Text('Sign In', style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16
+                      ),),
                     )
                   ],
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Already have an account?', style: TextStyle(color: Colors.white, fontSize: 16),),
-                TextButton(
-                  onPressed: (){
-                    _callSignInPage();
-                  },
-                  child: Text('Sign In', style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16
-                  ),),
                 )
               ],
-            )
+            ),
+            isLoading? Center(
+              child: CircularProgressIndicator(),
+            ): SizedBox.shrink(),
           ],
-        ),
+        )
       ),
     );
   }
