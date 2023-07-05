@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:insta_clone/services/auth_service.dart';
 
+import '../models/member_model.dart';
 import '../models/post.dart';
+import '../services/db_service.dart';
+import '../services/file_service.dart';
 
 class MyProfilePage extends StatefulWidget {
   const MyProfilePage({Key? key}) : super(key: key);
@@ -21,21 +24,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
   bool isLoading = false;
   File? _image;
   final ImagePicker _picker = ImagePicker();
-  String fullname="Murod", email = "murod@mail.ru", img_url = "";
+  String fullname="", email = "", img_url = "";
   int count_posts = 0, count_followers = 0, count_following = 0;
 
   int axisCount = 2;
-
-  String image_1 = "https://images.unsplash.com/photo-1529778873920-4da4926a72c2";
-  String image_2 = "https://images.unsplash.com/photo-1504006833117-8886a355efbf";
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    items.add(Post(image_1, "Best photo"));
-    items.add(Post(image_2, "Best photo in the world"));
-  }
 
   _callList(){
     setState(() {
@@ -55,6 +47,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     setState(() {
       _image = File(image!.path);
     });
+    _apiChangePhoto();
   }
 
   _imgFromCamera() async {
@@ -63,8 +56,66 @@ class _MyProfilePageState extends State<MyProfilePage> {
     setState(() {
       _image = File(image!.path);
     });
+    _apiChangePhoto();
   }
 
+  void _apiChangePhoto() {
+    if (_image == null) return;
+    setState(() {
+      isLoading = true;
+    });
+    FileService.uploadUserImage(_image!).then((downloadUrl) => {
+      _apiUpdateUser(downloadUrl),
+    });
+  }
+
+  _apiUpdateUser(String downloadUrl) async {
+    Member member = await DBService.loadMember();
+    member.img_url = downloadUrl;
+    await DBService.updateMember(member);
+    _apiLoadMember();
+  }
+
+  void _apiLoadMember() {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.loadMember().then((value) => {
+      _showMemberInfo(value),
+    });
+  }
+
+  void _showMemberInfo(Member member) {
+    setState(() {
+      isLoading = false;
+      this.fullname = member.fullname;
+      this.email = member.email;
+      this.img_url = member.img_url;
+      // this.count_following = member.following_count;
+      // this.count_followers = member.followers_count;
+      _apiLoadPosts();
+    });
+  }
+
+  _apiLoadPosts() {
+    DBService.loadPosts().then((value) => {
+      _resLoadPosts(value),
+    });
+  }
+
+  _resLoadPosts(List<Post> posts) {
+    setState(() {
+      items = posts;
+      count_posts = posts.length;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _apiLoadMember();
+    _apiLoadPosts();
+  }
   void _showPicker(context) {
     showModalBottomSheet(
         context: context,
@@ -143,7 +194,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(35),
-                          child: _image == null
+                          child: img_url == null || img_url.isEmpty
                               ? Image(
                             image: AssetImage(
                                 "assets/images/avatar.png"),
@@ -151,8 +202,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             height: 70,
                             fit: BoxFit.cover,
                           )
-                              : Image.file(
-                            _image!,
+                              : Image.network(
+                            img_url,
                             width: 70,
                             height: 70,
                             fit: BoxFit.cover,

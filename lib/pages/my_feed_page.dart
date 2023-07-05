@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_clone/services/db_service.dart';
 import 'package:insta_clone/services/rtdb_service.dart';
 
 import '../models/post.dart';
@@ -30,7 +31,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
 
   _apiPostList() async{
-    var list = await RtdbService.getPost();
+    var list = await DBService.loadFeeds();
     setState(() {
       items.clear();
       items = list;
@@ -92,21 +93,26 @@ class _MyFeedPageState extends State<MyFeedPage> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
-                        child: Image(
+                        child: post.img_user.isEmpty ? Image(
                           image: AssetImage('assets/images/avatar.png'),
                           width: 40,
                           height: 40,
+                        ): Image.network(
+                          post.img_user,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
                         ),
                       ),
                       SizedBox(width: 10,),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Username", style: TextStyle(
+                          Text(post.fullname, style: TextStyle(
                               fontWeight: FontWeight.bold, color: Colors.black
                           ),),
 
-                          Text("February 2, 2020")
+                          Text(post.date)
                         ],
                       ),
                     ],

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:insta_clone/models/post.dart';
+import 'package:insta_clone/services/db_service.dart';
+import 'package:insta_clone/services/file_service.dart';
 import 'package:insta_clone/services/rtdb_service.dart';
 import 'package:insta_clone/services/store_service.dart';
 
@@ -38,8 +40,29 @@ class _MyUploadPageState extends State<MyUploadPage> {
 
     if(caption.isEmpty)return;
     if(_image == null) return;
-    _apiUploadImage(caption);
-    _moveToFeed();
+    _apiPostImage();
+  }
+
+  void _apiPostImage(){
+    setState(() {
+      isLoading = true;
+    });
+    FileService.uploadPostImage(_image!).then((value) => {
+      _resPostImage(value),
+    });
+  }
+
+  void _resPostImage(String downloadUrl){
+    String caption = captionController.text.toString().trim();
+    Post post = Post(caption, downloadUrl);
+    _apiStorePost(post);
+  }
+
+  void _apiStorePost(Post post) async{
+    Post posted = await DBService.storePost(post);
+    DBService.storeFeed(posted).then((value) => {
+      _moveToFeed(),
+    });
   }
 
 
@@ -54,16 +77,6 @@ class _MyUploadPageState extends State<MyUploadPage> {
         curve: Curves.easeIn);
   }
 
-  _apiUploadImage(String caption){
-    StoreService.uploadImage(_image!).then((img_post) => {
-      _apiCreatePost(img_post, caption)
-    });
-  }
-
-  _apiCreatePost(String img_post, String caption){
-    var post = Post(img_post, caption);
-    RtdbService.addPost(post).then((value) => {});
-  }
 
   Future _imgFromGallery() async{
     final image = await _picker.getImage(source: ImageSource.gallery, imageQuality: 50);
