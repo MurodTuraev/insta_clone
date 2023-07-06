@@ -11,6 +11,10 @@ class Member{
   String device_type = "";
   String device_token = "";
 
+  bool followed = false;
+  int followers_count = 0;
+  int following_count = 0;
+
   Member(this.fullname, this.email);
 
   Member.frromJson(Map<String, dynamic> json)

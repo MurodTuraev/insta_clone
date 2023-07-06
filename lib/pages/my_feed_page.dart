@@ -17,6 +17,7 @@ class MyFeedPage extends StatefulWidget {
 
 class _MyFeedPageState extends State<MyFeedPage> {
   var isLoading = false;
+
   List<Post> items = [];
   // String image_1 = "https://images.unsplash.com/photo-1529778873920-4da4926a72c2";
   // String image_2 = "https://images.unsplash.com/photo-1504006833117-8886a355efbf";
@@ -35,6 +36,28 @@ class _MyFeedPageState extends State<MyFeedPage> {
     setState(() {
       items.clear();
       items = list;
+    });
+  }
+
+  void _apiPostLike(Post post) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.likePost(post, true);
+    setState(() {
+      isLoading = false;
+      post.liked = true;
+    });
+  }
+
+  void _apiPostUnLike(Post post) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.likePost(post, false);
+    setState(() {
+      isLoading = false;
+      post.liked = false;
     });
   }
 
@@ -144,9 +167,14 @@ class _MyFeedPageState extends State<MyFeedPage> {
             children: [
               IconButton(
                   onPressed: (){
-
+                    if(!post.liked){
+                      _apiPostLike(post);
+                    }else{
+                      _apiPostUnLike(post);
+                    }
                   },
-                  icon: Icon(EvaIcons.heartOutline, color: Colors.red, weight: 30,)),
+                  icon: post.liked ? Icon(EvaIcons.heart, color: Colors.red, weight: 30,):
+                  Icon(EvaIcons.heartOutline, color: Colors.black, weight: 30,)),
               IconButton(
                   onPressed: (){
 

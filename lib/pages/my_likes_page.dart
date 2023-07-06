@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_clone/services/db_service.dart';
 
 import '../models/post.dart';
 import '../services/rtdb_service.dart';
@@ -23,16 +24,36 @@ class _MyLikesPageState extends State<MyLikesPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _apiPostList();
+    _apiLoadLikes();
   }
 
 
 
-  _apiPostList() async{
-    var list = await RtdbService.getPost();
+  _apiLoadLikes() async{
     setState(() {
-      items.clear();
-      items = list;
+      isLoading = true;
+    });
+    DBService.getLikedPosts().then((value) => {
+      _resLoadPost(value),
+    });
+  }
+
+  _resLoadPost(List<Post> posts){
+    setState(() {
+      items = posts;
+      isLoading = false;
+    });
+  }
+
+  void _apiPostUnLike(Post post) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.likePost(post, false);
+    setState(() {
+      isLoading = false;
+      post.liked = false;
+      _apiLoadLikes();
     });
   }
 
@@ -83,21 +104,26 @@ class _MyLikesPageState extends State<MyLikesPage> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
-                        child: Image(
+                        child: post.img_user.isEmpty ? Image(
                           image: AssetImage('assets/images/avatar.png'),
                           width: 40,
                           height: 40,
+                        ): Image.network(
+                          post.img_user,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
                         ),
                       ),
                       SizedBox(width: 10,),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Username", style: TextStyle(
+                          Text(post.fullname, style: TextStyle(
                               fontWeight: FontWeight.bold, color: Colors.black
                           ),),
 
-                          Text("February 2, 2020")
+                          Text(post.date)
                         ],
                       ),
                     ],
@@ -129,7 +155,7 @@ class _MyLikesPageState extends State<MyLikesPage> {
             children: [
               IconButton(
                   onPressed: (){
-
+                    _apiPostUnLike(post);
                   },
                   icon: Icon(EvaIcons.heart, color: Colors.red, weight: 30,)),
               IconButton(

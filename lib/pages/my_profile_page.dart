@@ -91,8 +91,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
       this.fullname = member.fullname;
       this.email = member.email;
       this.img_url = member.img_url;
-      // this.count_following = member.following_count;
-      // this.count_followers = member.followers_count;
+      this.count_following = member.following_count;
+      this.count_followers = member.followers_count;
       _apiLoadPosts();
     });
   }

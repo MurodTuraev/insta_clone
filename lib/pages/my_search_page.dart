@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:insta_clone/services/db_service.dart';
 
 import '../models/member_model.dart';
 
@@ -18,10 +19,49 @@ class _MySearchPageState extends State<MySearchPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Member("Murod", "murod@mail.ru"));
-    items.add(Member("Suxrob", "suxrob@mail.ru"));
-    items.add(Member("Nodir", "nodir@mail.ru"));
+    _apiSearchMembers("");
   }
+
+  void _apiSearchMembers(String keyword) {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.searchMember(keyword).then((users) => {
+      _respSearchMembers(users),
+    });
+  }
+
+  void _respSearchMembers(List<Member> members) {
+    setState(() {
+      items = members;
+      isLoading = false;
+    });
+  }
+
+  void _apiUnFollowMember(Member someone) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.unFollowMember(someone);
+    setState(() {
+      someone.followed = false;
+      isLoading = false;
+    });
+    DBService.removePostsToMyFeed(someone);
+  }
+
+  void _apiFollowMember(Member someone) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.followMember(someone);
+    setState(() {
+      someone.followed = true;
+      isLoading = false;
+    });
+    DBService.storePostsToMyFeed(someone);
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -104,12 +144,12 @@ class _MySearchPageState extends State<MySearchPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(22.5),
-              child: Image(
+              child: member.img_url.isEmpty ? Image(
                 image: AssetImage('assets/images/avatar.png'),
                 width: 45,
                 height: 45,
                 fit: BoxFit.cover,
-              ),
+              ): Image.network(member.img_url, width: 40, height: 40, fit: BoxFit.cover,),
             ),
           ),
           SizedBox(width: 15,),
@@ -121,7 +161,7 @@ class _MySearchPageState extends State<MySearchPage> {
                 fontWeight: FontWeight.bold
               ),),
               SizedBox(height: 3,),
-              Text(member.fullname, style: TextStyle(
+              Text(member.email, style: TextStyle(
                   fontWeight: FontWeight.bold,
                 color: Colors.black54
               ),),
@@ -133,7 +173,13 @@ class _MySearchPageState extends State<MySearchPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: (){},
+                  onTap: (){
+                    if(member.followed){
+                      _apiUnFollowMember(member);
+                    }else{
+                      _apiFollowMember(member);
+                    }
+                  },
                   child: Container(
                     width: 100,
                     height: 30,
@@ -145,7 +191,7 @@ class _MySearchPageState extends State<MySearchPage> {
                       ),
                     ),
                     child: Center(
-                      child: Text("Follow"),
+                      child: member.followed ? Text("Following"): Text("Follow"),
                     ),
                   ),
                 )

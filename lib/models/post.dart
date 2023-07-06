@@ -6,7 +6,7 @@ class Post{
   String img_post;
   String caption;
   String date="";
-  String liked="";
+  bool liked=false;
 
   bool mine = false;
 
